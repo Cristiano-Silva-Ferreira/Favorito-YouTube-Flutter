@@ -12,13 +12,15 @@ class VideosBloc implements BlocBase {
   List<Video> videos;
 
   // Implementando o Stream
-  final StreamController _videoController = StreamController();
+  final StreamController<List<Video>> _videoController =
+      StreamController<List<Video>>();
 
   // Definindo a saida dos videos
   Stream get outVideo => _videoController.stream;
 
   // Definindo a entrada
-  final StreamController _searchController = StreamController();
+  final StreamController<dynamic> _searchController =
+      StreamController<dynamic>();
   Sink get inSearch => _searchController.sink;
 
   // Criando o construdor
@@ -32,8 +34,7 @@ class VideosBloc implements BlocBase {
   // Função de pesquisar os dados do video
   void _search(String search) async {
     videos = await api.search(search);
-
-    print(videos);
+    _videoController.sink.add(videos);
   }
 
   @override
@@ -41,5 +42,24 @@ class VideosBloc implements BlocBase {
     // Fechando o stream
     _videoController.close();
     _searchController.close();
+  }
+
+  @override
+  void addListener(listener) {
+    // TODO: implement addListener
+  }
+
+  @override
+  // TODO: implement hasListeners
+  bool get hasListeners => throw UnimplementedError();
+
+  @override
+  void notifyListeners() {
+    // TODO: implement notifyListeners
+  }
+
+  @override
+  void removeListener(listener) {
+    // TODO: implement removeListener
   }
 }
