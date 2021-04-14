@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 
 import 'models/video.dart';
 
-const API_KEY = 'insert coin here';
+const API_KEY = 'AIzaSyDFZLDvp7LzxKmjk0GkgoIr7bOQHzsxekk';
 /*
   'https://www.googleapis.com/youtube/v3/search?part=snippet&q=$search&type=video&key=$API_KEY&maxResults=10'
   'https://www.googleapis.com/youtube/v3/search?part=snippet&q=$_search&type=video&key=$API_KEY&maxResults=10&pageToken=$_nextToken'
