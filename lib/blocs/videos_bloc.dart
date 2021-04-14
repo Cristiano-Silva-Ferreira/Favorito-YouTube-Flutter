@@ -2,64 +2,45 @@ import 'dart:async';
 
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:favoritos_youtube/models/video.dart';
-import 'package:favoritos_youtube/screens/api.dart';
 
-class VideosBloc implements BlocBase {
-  // Importando a Api
+import '../api.dart';
+
+class VideosBloc extends BlocBase {
+
   Api api;
 
-  // Criando uma lista de videos
-  List<Video> videos;
+  List<Video> _videosList;
 
-  // Implementando o Stream
-  final StreamController<List<Video>> _videoController =
-      StreamController<List<Video>>();
+  final StreamController<List<Video>> _videosController = StreamController<List<Video>>();
+  Stream get outVideos => _videosController.stream;
 
-  // Definindo a saida dos videos
-  Stream get outVideo => _videoController.stream;
+  final StreamController<String> _seearchController = StreamController<String>();
+  Sink get inSearch => _seearchController.sink;
 
-  // Definindo a entrada
-  final StreamController<dynamic> _searchController =
-      StreamController<dynamic>();
-  Sink get inSearch => _searchController.sink;
-
-  // Criando o construdor
   VideosBloc() {
     api = Api();
 
-    // Recebendo os dados do inSearch
-    _searchController.stream.listen(_search);
+    _seearchController.stream.listen( _search );
   }
 
-  // Função de pesquisar os dados do video
-  void _search(String search) async {
-    videos = await api.search(search);
-    _videoController.sink.add(videos);
+  void _search(String searchText) async {
+    //print('[VideosBloc._search] Procurando por $searchText... encontrei:');
+
+    if(searchText != null) { // search for something
+      _videosController.sink.add([]); // reset the ListView piping an empty video list
+      _videosList = await api.search(searchText);
+    } else {
+      _videosList += await api.nextPage(); // dart allows to add 2 different lists!!
+    }
+    //print('[VideosBloc._search] $_videosList');
+
+    _videosController.sink.add(_videosList);
   }
 
   @override
   void dispose() {
-    // Fechando o stream
-    _videoController.close();
-    _searchController.close();
-  }
-
-  @override
-  void addListener(listener) {
-    // TODO: implement addListener
-  }
-
-  @override
-  // TODO: implement hasListeners
-  bool get hasListeners => throw UnimplementedError();
-
-  @override
-  void notifyListeners() {
-    // TODO: implement notifyListeners
-  }
-
-  @override
-  void removeListener(listener) {
-    // TODO: implement removeListener
+    super.dispose();
+    _videosController.close();
+    _seearchController.close();
   }
 }
