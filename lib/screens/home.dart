@@ -7,9 +7,11 @@ import 'package:favoritos_youtube/widgets/video_tile.dart';
 import 'package:flutter/material.dart';
 
 import 'favorites_screen.dart';
+
 class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final bloc = BlocProvider.getBloc<VideosBloc>();
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
@@ -25,7 +27,7 @@ class Home extends StatelessWidget {
             child: StreamBuilder<Map<String, Video>>(
               stream: BlocProvider.getBloc<FavoriteBloc>().outFav,
               builder: (context, snapshot) {
-                if(snapshot.hasData) {
+                if (snapshot.hasData) {
                   return Text('${snapshot.data.length}');
                 } else {
                   return Container();
@@ -34,46 +36,53 @@ class Home extends StatelessWidget {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.star),
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => FavoritesScreen())
-              );
-            }
-          ),
+              icon: Icon(Icons.star),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => FavoritesScreen(),
+                  ),
+                );
+              }),
           IconButton(
-            icon: Icon(Icons.search),
-            onPressed: () async {
-              String result = await showSearch(context: context, delegate: DataSearch());
-              print('[Home.build().showSearch] result = $result');
-              if(result != null && result.isNotEmpty) {
-                BlocProvider.getBloc<VideosBloc>().inSearch.add(result);
-              }
-            }
-          ),
+              icon: Icon(Icons.search),
+              onPressed: () async {
+                String result = await showSearch(
+                  context: context,
+                  delegate: DataSearch(),
+                );
+                print('[Home.build().showSearch] result = $result');
+                if (result != null && result.isNotEmpty) {
+                  bloc.inSearch.add(result);
+                }
+              }),
         ],
       ),
       body: StreamBuilder(
         stream: BlocProvider.getBloc<VideosBloc>().outVideos,
         builder: (context, snapshot) {
-          if(snapshot.hasData) {
+          if (snapshot.hasData) {
             return ListView.builder(
-              itemCount: snapshot.data.length + (snapshot.data.length > 0 ? 1 : 0), // + 1 to allow continuous scroll
-              itemBuilder: (context, index) {
-                if(index < snapshot.data.length) {
-                  return VideoTile(snapshot.data[index]);
-                }  
-                else {
-                  BlocProvider.getBloc<VideosBloc>().inSearch.add(null);
-                  return Container(
-                    height: 40,
-                    width: 40,
-                    alignment: Alignment.center,
-                    child: CircularProgressIndicator(valueColor: const AlwaysStoppedAnimation<Color>(Colors.red)),
-                  );
-                }
-              }
-            );
+                itemCount: snapshot.data.length +
+                    (snapshot.data.length > 0
+                        ? 1
+                        : 0), // + 1 to allow continuous scroll
+                itemBuilder: (context, index) {
+                  if (index < snapshot.data.length) {
+                    return VideoTile(snapshot.data[index]);
+                  } else {
+                    bloc.inSearch.add(null);
+                    return Container(
+                      height: 40,
+                      width: 40,
+                      alignment: Alignment.center,
+                      child: CircularProgressIndicator(
+                        valueColor:
+                            const AlwaysStoppedAnimation<Color>(Colors.red),
+                      ),
+                    );
+                  }
+                });
           } else {
             return Container();
           }
