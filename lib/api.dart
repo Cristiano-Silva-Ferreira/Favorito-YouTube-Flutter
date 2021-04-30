@@ -5,12 +5,6 @@ import 'package:http/http.dart' as http;
 import 'models/video.dart';
 
 const API_KEY = 'AIzaSyDFZLDvp7LzxKmjk0GkgoIr7bOQHzsxekk';
-/*
-  'https://www.googleapis.com/youtube/v3/search?part=snippet&q=$search&type=video&key=$API_KEY&maxResults=10'
-  'https://www.googleapis.com/youtube/v3/search?part=snippet&q=$_search&type=video&key=$API_KEY&maxResults=10&pageToken=$_nextToken'
-  'https://suggestqueries.google.com/complete/search?hl=en&ds=yt&client=youtube&hjson=t&cp=1&q=$search&format=5&alt=json'
- */
-
 
 class Api {
 
@@ -20,9 +14,7 @@ class Api {
   Future<List<Video>> search(String searchText) async {
 
     _searchText = searchText;
-
-    //print('Api.search($searchText)');
-    //print('Api.search url = https://www.googleapis.com/youtube/v3/search?part=snippet&q=$searchText&type=video&key=$API_KEY&maxResults=10');
+   
     http.Response response = await http.get(
       Uri.parse(
         'https://www.googleapis.com/youtube/v3/search?part=snippet&q=$searchText&type=video&key=$API_KEY&maxResults=10'
@@ -42,19 +34,13 @@ class Api {
         (item) => Video.fromJson(item)
       ).toList();
 
-      //print(videosList);
-
       return videosList;
     } else {
-      //print('response.statusCode = ${response.statusCode}');
-      //print('response.body = ${response.body}');
       throw Exception('Failed to load videos!');
     }
   }
 
-  Future<List<Video>> nextPage() async {
-    //print('Api.nextPage url = https://www.googleapis.com/youtube/v3/search?part=snippet&q=$_searchText&type=video&key=$API_KEY&maxResults=10&pageToken=$_nextToken');
-
+  Future<List<Video>> nextPage() async {   
     http.Response response = await http.get(
       Uri.parse(
         'https://www.googleapis.com/youtube/v3/search?part=snippet&q=$_searchText&type=video&key=$API_KEY&maxResults=10&pageToken=$_nextToken'
